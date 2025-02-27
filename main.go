@@ -1,0 +1,250 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"sort"
+	"strconv"
+	"sync"
+	"time"
+)
+
+const (
+	market_coins_url = "https://api.coindcx.com/exchange/v1/markets"
+	base_url         = "https://public.coindcx.com/market_data/orderbook?pair="
+	trade_url        = "https://public.coindcx.com/market_data/trade_history?pair=I-"
+)
+
+var CoinWithINR = []string{"XAI", "SC", "PEIPEI", "GMT", "ZRO", "AVAX", "VINE", "1MBABYDOGE", "VVV", "OMNI", "ADA", "BENDOG", "POL", "FLOKI", "AZERO", "CAKE", "LRC", "FARTCOIN", "KAS", "DFI", "XCAD", "POPCAT", "DOGE", "AR", "CATS", "FLM", "HNT", "YFII", "INJ", "MIGGLES", "MYRIA", "ULTIMA", "CHZ", "POLYX", "WIF", "PEN", "TURBO", "SPX", "KAITO", "TOSHI", "METIS", "UMA", "STRAX", "FLT", "VINU", "DIONE", "MYRO", "AIXBT", "SUNDOG", "BSV", "BAN", "1000CHEEMS", "ACT", "MEME", "COOKIE", "AKT", "ALICE", "DEFI", "ALT", "ETC", "BERA", "BSW", "D", "AVAIL", "COW", "AXS", "SHIB", "ATH", "MANTA", "BRETT", "GRASS", "JASMY", "SOLV", "TST", "ALGO", "JUP", "BRISE", "PNUT", "CGPT", "ROOT", "HIPPO", "PONKE", "ONDO", "AERO", "TOMI", "AAVE", "DGB", "HBAR", "AIOZ", "TRB", "BTC", "ICP", "FIL", "PHB", "LINK", "HYPE", "MOVE", "ARB", "VELODROME", "KNC", "MTL", "ACX", "DYM", "TFUEL", "ZEC", "SLERF", "FET", "CFG", "WAXL", "ELY", "ETHFI", "SILLY", "ILV", "EGLD", "LEVER", "LMWR", "ZIG", "STX", "SUSHI", "THE", "ENA", "LINA", "GOAT", "TNSR", "CSIX", "SAGA", "PDA", "PRCL", "LUNA", "RSR", "SYN", "NMR", "BDX", "PROS", "BCH", "NULS", "ZCX", "USDT", "G", "S", "VRA", "VET", "LOOM", "ICE", "NIBI", "VSC", "SKY", "MBL", "FIDA", "TIA", "XVG", "CRV", "VELO", "WIN", "USUAL", "EWT", "SNX", "GRT", "USDC", "IMX", "OMG", "MOODENG", "SUN", "RENDER", "IOTX", "ARTFI", "WEN", "EMT", "TON", "XR", "LISTA", "X", "BONK", "BEAMX", "BIO", "COTI", "DMTR", "PUSH", "SUI", "BNB", "SPELL", "PYTH", "NEAR", "BIGTIME", "ME", "YFI", "NOT", "E4C", "MEMEFI", "CAT", "DEGEN", "PEPE", "VIRTUAL", "PHA", "XLM", "BAX", "BOME", "STRK", "BTTC", "TAO", "ZEREBRO", "SOL", "GRIFFAIN", "W", "XRP", "LAYER", "DOGS", "OM", "GOATS", "SEI", "ETH", "VOLT", "SUPER", "PEOPLE", "NEIROETH", "GALA", "PENGU", "LDO", "TRUMP", "CHILLGUY", "XYO", "TRX", "ANIME", "APT", "DYDX", "HOT", "UNI", "GEOD", "WLD", "PAXG", "MELANIA", "AI16Z", "MERL", "SDEX", "MAJOR", "ALPACA", "HMSTR", "IQ", "NAKA", "PIXEL", "ARKM", "SKL", "BULL", "CREAM", "APE", "ACH", "WEMIX", "DATA", "ALEX", "STORJ", "QNT", "STC", "SYS", "RONIN", "NEO", "EIGEN", "LAT", "JOE", "MINA", "PORTAL", "DRIFT", "RIF", "ZIL", "AGG", "PERP", "AST", "SLP", "COPI", "OGN", "ORCA", "NKN", "KSM", "UFT", "CETUS", "BCUT", "ZETA", "SCR", "GAS", "VENOM", "HIGH", "PROM", "THETA", "SXP", "TLM", "COMP", "CELR", "GMMT", "ONE", "WAXP", "AMP", "LCX", "REQ", "FTT", "WAVES", "MASA", "RVN", "ZK", "DOT", "TKO", "IO", "DENT", "CFX", "MKR", "LUMIA", "EOS", "BANANA", "DODO", "PHIL", "MBOX", "OSMO", "CHR", "VANA", "TOKEN", "ROSE", "MEW", "CKB", "PYR", "XDC", "RLC", "CVC", "TWT", "BICO", "TUSD", "MAHA", "FTN", "SANTOS", "FUN", "XAUT", "BOBA", "FORT", "LPT", "MARSH", "ADX", "ONG", "TLOS", "IOST", "REN", "PDEX", "ORBS", "EURT", "ZBU", "SOLO", "QI", "CTC", "PRO", "VTHO", "XCN", "POWR", "TEL", "DAO", "AUDIO", "CSPR", "CTSI", "SIDUS", "CCD", "ADS", "XEM", "MASK", "NFP", "KAVA", "XDB", "CTK", "ELF", "MNT", "BLUR", "WOO", "ENS", "MAVIA", "OAS", "BB", "CELO", "ALPHA", "REZ", "ATOM", "RAY", "ORDI", "ANKR", "DIA", "XTZ", "GLM", "MOVR", "CORE", "DAI"} // Keep your full list
+
+type OrderBook struct {
+	Timestamp int64             `json:"timestamp"`
+	Asks      map[string]string `json:"asks"`
+	Bids      map[string]string `json:"bids"`
+}
+
+type TradeHistory struct {
+	P float64 `json:"p"`
+	Q float64 `json:"q"`
+	S string  `json:"s"`
+	T float64 `json:"T"`
+	M bool    `json:"m"`
+}
+
+var (
+	coinWithProfit = make(map[string][]float64)
+	profitMutex    = &sync.Mutex{}
+	httpClient     = &http.Client{Timeout: 150 * time.Second}
+	realCryptoShit = make(map[string]float64)
+	realCryptoShitMutex = &sync.Mutex{}
+)
+
+func main() {
+	
+	for true {
+		get_profit()
+		time.Sleep(1 * time.Minute)
+		async_trade_history()
+		time.Sleep(1 * time.Minute)
+		for coin, time := range realCryptoShit {
+			fmt.Printf("%s: %f\n", coin, time)
+			message := fmt.Sprintf("Coin Name:  %s \nTotal profit: %f", coin, coinWithProfit[coin])	
+			http.PostForm("https://api.pushover.net/1/messages.json", url.Values{
+				"token":   {"a7y4swewmxje1xd4e7mk29wy6r5ged"},
+				"user":    {"u964gnk8jyubzzoysrd8bnsorhd9nv"},
+				"message": {message},
+			})
+		}
+	}
+}
+
+func get_profit() {
+	var wg sync.WaitGroup
+	for _, coin := range CoinWithINR {
+		wg.Add(1)
+
+		go func(c string) {
+			defer func() {
+				wg.Done()
+			}()
+			processCoin(c)
+		}(coin)
+	}
+
+	wg.Wait()
+}
+
+func processCoin(coin string) {
+	coinURL := base_url + "B-" + coin + "_INR"
+
+	// Make HTTP request
+	resp, err := httpClient.Get(coinURL) // Use httpClient with timeout
+	if err != nil {
+		fmt.Printf("Error fetching %s: %v\n", coin, err)
+		return
+	}
+	defer resp.Body.Close()
+
+	// Read response
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("Error reading %s: %v\n", coin, err)
+		return
+	}
+
+	// Parse JSON
+	var orderbook OrderBook
+	if err := json.Unmarshal(body, &orderbook); err != nil {
+		fmt.Printf("Error parsing %s: %v\n", coin, err)
+		return
+	}
+
+	// Get best prices
+	bestAsk, bestBid := getBestPrices(orderbook)
+	if bestAsk == 0 || bestBid == 0 {
+		return
+	}
+
+	// Calculate profit
+	investment := 1000.0
+	profit := (investment/bestBid)*bestAsk - investment
+
+	// Safe write to map
+	if profit > 50.0 {
+		profitMutex.Lock()
+		coinWithProfit[coin] = append(coinWithProfit[coin], profit)
+		profitMutex.Unlock()
+	}
+}
+
+func getBestPrices(orderbook OrderBook) (float64, float64) {
+	// Process asks
+	var askPrices []float64
+	for priceStr := range orderbook.Asks {
+		price, err := strconv.ParseFloat(priceStr, 64)
+		if err != nil {
+			continue
+		}
+		askPrices = append(askPrices, price)
+	}
+	if len(askPrices) == 0 {
+		return 0, 0
+	}
+	sort.Float64s(askPrices)
+	bestAsk := askPrices[0]
+
+	// Process bids
+	var bidPrices []float64
+	for priceStr := range orderbook.Bids {
+		price, err := strconv.ParseFloat(priceStr, 64)
+		if err != nil {
+			continue
+		}
+		bidPrices = append(bidPrices, price)
+	}
+	if len(bidPrices) == 0 {
+		return 0, 0
+	}
+	sort.Sort(sort.Reverse(sort.Float64Slice(bidPrices)))
+	bestBid := bidPrices[0]
+
+	return bestAsk, bestBid
+}
+
+func async_trade_history() {
+	var wg sync.WaitGroup
+
+	for coin := range coinWithProfit {
+		wg.Add(1)
+
+		go func(c string) {
+			defer func() {
+				wg.Done()
+			}()
+			processTradeHistory(c)
+		}(coin)
+	}
+	wg.Wait()
+}
+
+func processTradeHistory(coin string) {
+	coinUrl := trade_url + coin + "_INR" + "&limit=5"
+
+	resp, err := httpClient.Get(coinUrl) // Use httpClient with timeout
+	if err != nil {
+		fmt.Printf("Error fetching trade history for %s: %v\n", coin, err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("HTTP error for %s: Status code: %d\n", coin, resp.StatusCode)
+		return
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("Error reading trade history body for %s: %v\n", coin, err)
+		return
+	}
+
+	var tradehistory []TradeHistory
+	if err := json.Unmarshal(body, &tradehistory); err != nil {
+		fmt.Printf("Error parsing trade history JSON for %s: %v\n", coin, err)
+		fmt.Printf("Response body was: %s\n", string(body)) // Print the response body for debugging
+		return
+	}
+
+	if len(tradehistory) == 0 {
+		fmt.Printf("No trade history data received for %s\n", coin)
+		return
+	}
+
+	var times []float64
+	for _, trade := range tradehistory {
+		times = append(times, trade.T)
+	}
+
+	sort.Sort(sort.Reverse(sort.Float64Slice(times)))
+
+	var (
+		condition = true
+		diff      float64
+		timeNow   int64
+		j         = 1
+	)
+	timeNow = time.Now().UnixMilli() / 1000
+	for idx := range 4 {
+		if j >= len(times) { // Check if j is within bounds
+			break // Exit loop if j is out of bounds
+		}
+		T1 := times[idx] / 1000
+		T2 := times[j] / 1000
+		diff = T1 - T2
+		recentDiff := (float64(timeNow)) - (times[0] / 1000)
+		if diff > 120 || recentDiff > 60.0 {
+			condition = false
+			return
+		}
+		j += 1
+	}
+
+	if condition == true {
+		for _, trade := range tradehistory {
+			realCryptoShitMutex.Lock()
+			T1 := (float64(timeNow) * 1000) / 1000
+			T2 := times[0] / 1000
+			// formatted_T1 := strconv.FormatFloat(T1, 'f', 6, 64)
+			// formatted_T2 := strconv.FormatFloat(T2, 'f', 6, 64)
+			// parsed_T1, _ := strconv.ParseFloat(formatted_T1, 64)
+			// parsed_T2, _ := strconv.ParseFloat(formatted_T2, 64)
+			realCryptoShit[trade.S] = T1 - T2
+			realCryptoShitMutex.Unlock()
+			break
+		}
+
+	}
+}

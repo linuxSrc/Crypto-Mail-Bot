@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -35,7 +36,7 @@ type TradeHistory struct {
 }
 
 var (
-	coinWithProfit = make(map[string][]float64)
+	coinWithProfit = make(map[string]float64)
 	profitMutex    = &sync.Mutex{}
 	httpClient     = &http.Client{Timeout: 150 * time.Second}
 	realCryptoShit = make(map[string]float64)
@@ -45,13 +46,15 @@ var (
 func main() {
 	
 	for true {
-		get_profit()
-		time.Sleep(1 * time.Minute)
 		async_trade_history()
 		time.Sleep(1 * time.Minute)
-		for coin, time := range realCryptoShit {
-			fmt.Printf("%s: %f\n", coin, time)
-			message := fmt.Sprintf("Coin Name:  %s \nTotal profit: %f", coin, coinWithProfit[coin])	
+
+		get_profit()
+		time.Sleep(1 * time.Minute)
+
+		for coin, profit := range coinWithProfit {
+			fmt.Printf("%s: %f\n", coin, profit)
+			message := fmt.Sprintf("Coin Name:  %s \nTotal profit: %.2f", coin, profit)	
 			http.PostForm("https://api.pushover.net/1/messages.json", url.Values{
 				"token":   {"a7y4swewmxje1xd4e7mk29wy6r5ged"},
 				"user":    {"u964gnk8jyubzzoysrd8bnsorhd9nv"},
@@ -63,9 +66,8 @@ func main() {
 
 func get_profit() {
 	var wg sync.WaitGroup
-	for _, coin := range CoinWithINR {
+	for coin := range realCryptoShit {
 		wg.Add(1)
-
 		go func(c string) {
 			defer func() {
 				wg.Done()
@@ -80,48 +82,40 @@ func get_profit() {
 func processCoin(coin string) {
 	coinURL := base_url + "B-" + coin + "_INR"
 
-	// Make HTTP request
-	resp, err := httpClient.Get(coinURL) // Use httpClient with timeout
+	resp, err := httpClient.Get(coinURL) 
 	if err != nil {
 		fmt.Printf("Error fetching %s: %v\n", coin, err)
 		return
 	}
 	defer resp.Body.Close()
 
-	// Read response
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("Error reading %s: %v\n", coin, err)
 		return
 	}
 
-	// Parse JSON
 	var orderbook OrderBook
 	if err := json.Unmarshal(body, &orderbook); err != nil {
 		fmt.Printf("Error parsing %s: %v\n", coin, err)
 		return
 	}
-
 	// Get best prices
 	bestAsk, bestBid := getBestPrices(orderbook)
 	if bestAsk == 0 || bestBid == 0 {
 		return
 	}
 
-	// Calculate profit
 	investment := 1000.0
 	profit := (investment/bestBid)*bestAsk - investment
-
-	// Safe write to map
-	if profit > 50.0 {
+	if profit > 10.0 {
 		profitMutex.Lock()
-		coinWithProfit[coin] = append(coinWithProfit[coin], profit)
+		coinWithProfit[coin] = profit
 		profitMutex.Unlock()
 	}
 }
 
 func getBestPrices(orderbook OrderBook) (float64, float64) {
-	// Process asks
 	var askPrices []float64
 	for priceStr := range orderbook.Asks {
 		price, err := strconv.ParseFloat(priceStr, 64)
@@ -136,7 +130,6 @@ func getBestPrices(orderbook OrderBook) (float64, float64) {
 	sort.Float64s(askPrices)
 	bestAsk := askPrices[0]
 
-	// Process bids
 	var bidPrices []float64
 	for priceStr := range orderbook.Bids {
 		price, err := strconv.ParseFloat(priceStr, 64)
@@ -157,7 +150,7 @@ func getBestPrices(orderbook OrderBook) (float64, float64) {
 func async_trade_history() {
 	var wg sync.WaitGroup
 
-	for coin := range coinWithProfit {
+	for _, coin := range CoinWithINR {
 		wg.Add(1)
 
 		go func(c string) {
@@ -173,7 +166,7 @@ func async_trade_history() {
 func processTradeHistory(coin string) {
 	coinUrl := trade_url + coin + "_INR" + "&limit=5"
 
-	resp, err := httpClient.Get(coinUrl) // Use httpClient with timeout
+	resp, err := httpClient.Get(coinUrl) 
 	if err != nil {
 		fmt.Printf("Error fetching trade history for %s: %v\n", coin, err)
 		return
@@ -218,33 +211,34 @@ func processTradeHistory(coin string) {
 	)
 	timeNow = time.Now().UnixMilli() / 1000
 	for idx := range 4 {
-		if j >= len(times) { // Check if j is within bounds
-			break // Exit loop if j is out of bounds
+		if j >= len(times) { 
+			break 
 		}
 		T1 := times[idx] / 1000
 		T2 := times[j] / 1000
 		diff = T1 - T2
 		recentDiff := (float64(timeNow)) - (times[0] / 1000)
-		if diff > 120 || recentDiff > 60.0 {
+		// fmt.Println(diff, recentDiff)
+		if diff > 60 || recentDiff > 30.0 {
 			condition = false
 			return
 		}
 		j += 1
 	}
-
+	// fmt.Println(coin, condition)
 	if condition == true {
 		for _, trade := range tradehistory {
-			realCryptoShitMutex.Lock()
 			T1 := (float64(timeNow) * 1000) / 1000
 			T2 := times[0] / 1000
 			// formatted_T1 := strconv.FormatFloat(T1, 'f', 6, 64)
 			// formatted_T2 := strconv.FormatFloat(T2, 'f', 6, 64)
 			// parsed_T1, _ := strconv.ParseFloat(formatted_T1, 64)
 			// parsed_T2, _ := strconv.ParseFloat(formatted_T2, 64)
-			realCryptoShit[trade.S] = T1 - T2
+			realCryptoShitMutex.Lock()
+			removedINRpart := strings.TrimSuffix(trade.S, "INR")
+			realCryptoShit[removedINRpart] = T1 - T2
 			realCryptoShitMutex.Unlock()
 			break
 		}
-
 	}
 }

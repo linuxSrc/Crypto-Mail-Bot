@@ -54,7 +54,7 @@ func main() {
 
 		for coin, profit := range coinWithProfit {
 			fmt.Printf("%s: %f\n", coin, profit)
-			message := fmt.Sprintf("Coin Name:  %s \nTotal profit: %.2f", coin, profit)	
+			message := fmt.Sprintf("Coin Name:  %s \nTotal profit: %.2f \nLast Traded: %2.fs ago", coin, profit, realCryptoShit[coin])	
 			http.PostForm("https://api.pushover.net/1/messages.json", url.Values{
 				"token":   {"a7y4swewmxje1xd4e7mk29wy6r5ged"},
 				"user":    {"u964gnk8jyubzzoysrd8bnsorhd9nv"},
@@ -219,7 +219,7 @@ func processTradeHistory(coin string) {
 		diff = T1 - T2
 		recentDiff := (float64(timeNow)) - (times[0] / 1000)
 		// fmt.Println(diff, recentDiff)
-		if diff > 60 || recentDiff > 30.0 {
+		if diff > 30 || recentDiff > 30.0 {
 			condition = false
 			return
 		}

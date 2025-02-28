@@ -219,7 +219,7 @@ func processTradeHistory(coin string) {
 		diff = T1 - T2
 		recentDiff := (float64(timeNow)) - (times[0] / 1000)
 		// fmt.Println(diff, recentDiff)
-		if diff > 30 || recentDiff > 30.0 {
+		if diff > 30 || recentDiff > 10.0 {
 			condition = false
 			return
 		}

@@ -47,14 +47,14 @@ func main() {
 	
 	for true {
 		async_trade_history()
-		time.Sleep(20 * time.Second)
+		time.Sleep(30 * time.Second)
 		fmt.Println(realCryptoShit)
 		get_profit()
-		time.Sleep(20 * time.Second)
+		time.Sleep(30 * time.Second)
 		fmt.Println(coinWithProfit)
 		for coin, profit := range coinWithProfit {
 			fmt.Printf("%s: %f\n", coin, profit)
-			message := fmt.Sprintf("Coin Name:  %s \nTotal profit: %.2f \nLast Traded: %2.fs ago", coin, profit, realCryptoShit[coin])	
+			message := fmt.Sprintf("Coin Name:  %s \nTotal profit: %.2f \nLast Traded: %2.fs ago", coin, profit, realCryptoShit[coin] + 30.0)	
 			http.PostForm("https://api.pushover.net/1/messages.json", url.Values{
 				"token":   {"a7y4swewmxje1xd4e7mk29wy6r5ged"},
 				"user":    {"u964gnk8jyubzzoysrd8bnsorhd9nv"},
@@ -223,7 +223,6 @@ func processTradeHistory(coin string) {
 			condition = false
 			return
 		}
-		j += 1
 	}
 	// fmt.Println(coin, condition)
 	if condition == true {

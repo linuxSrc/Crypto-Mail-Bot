@@ -106,9 +106,9 @@ func processCoin(coin string) {
 		return
 	}
 
-	investment := 1000.0
-	profit := (investment/bestBid)*bestAsk - investment
-	if profit > 10.0 {
+	investment := 2000.0
+	profit := (investment/bestBid)*bestAsk - investment - 30
+	if profit > 60.0 {
 		profitMutex.Lock()
 		coinWithProfit[coin] = profit
 		profitMutex.Unlock()

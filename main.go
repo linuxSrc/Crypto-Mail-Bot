@@ -19,7 +19,7 @@ const (
 	trade_url        = "https://public.coindcx.com/market_data/trade_history?pair=I-"
 )
 
-var CoinWithINR = []string{"XAI", "SC", "PEIPEI", "GMT", "ZRO", "AVAX", "VINE", "1MBABYDOGE", "VVV", "OMNI", "ADA", "BENDOG", "POL", "FLOKI", "AZERO", "CAKE", "LRC", "FARTCOIN", "KAS", "DFI", "XCAD", "POPCAT", "DOGE", "AR", "CATS", "FLM", "HNT", "YFII", "INJ", "MIGGLES", "MYRIA", "ULTIMA", "CHZ", "POLYX", "WIF", "PEN", "TURBO", "SPX", "KAITO", "TOSHI", "METIS", "UMA", "STRAX", "FLT", "VINU", "DIONE", "MYRO", "AIXBT", "SUNDOG", "BSV", "BAN", "1000CHEEMS", "ACT", "MEME", "COOKIE", "AKT", "ALICE", "DEFI", "ALT", "ETC", "BERA", "BSW", "D", "AVAIL", "COW", "AXS", "SHIB", "ATH", "MANTA", "BRETT", "GRASS", "JASMY", "SOLV", "TST", "ALGO", "JUP", "BRISE", "PNUT", "CGPT", "ROOT", "HIPPO", "PONKE", "ONDO", "AERO", "TOMI", "AAVE", "DGB", "HBAR", "AIOZ", "TRB", "BTC", "ICP", "FIL", "PHB", "LINK", "HYPE", "MOVE", "ARB", "VELODROME", "KNC", "MTL", "ACX", "DYM", "TFUEL", "ZEC", "SLERF", "FET", "CFG", "WAXL", "ELY", "ETHFI", "SILLY", "ILV", "EGLD", "LEVER", "LMWR", "ZIG", "STX", "SUSHI", "THE", "ENA", "LINA", "GOAT", "TNSR", "CSIX", "SAGA", "PDA", "PRCL", "LUNA", "RSR", "SYN", "NMR", "BDX", "PROS", "BCH", "NULS", "ZCX", "USDT", "G", "S", "VRA", "VET", "LOOM", "ICE", "NIBI", "VSC", "SKY", "MBL", "FIDA", "TIA", "XVG", "CRV", "VELO", "WIN", "USUAL", "EWT", "SNX", "GRT", "USDC", "IMX", "OMG", "MOODENG", "SUN", "RENDER", "IOTX", "ARTFI", "WEN", "EMT", "TON", "XR", "LISTA", "X", "BONK", "BEAMX", "BIO", "COTI", "DMTR", "PUSH", "SUI", "BNB", "SPELL", "PYTH", "NEAR", "BIGTIME", "ME", "YFI", "NOT", "E4C", "MEMEFI", "CAT", "DEGEN", "PEPE", "VIRTUAL", "PHA", "XLM", "BAX", "BOME", "STRK", "BTTC", "TAO", "ZEREBRO", "SOL", "GRIFFAIN", "W", "XRP", "LAYER", "DOGS", "OM", "GOATS", "SEI", "ETH", "VOLT", "SUPER", "PEOPLE", "NEIROETH", "GALA", "PENGU", "LDO", "TRUMP", "CHILLGUY", "XYO", "TRX", "ANIME", "APT", "DYDX", "HOT", "UNI", "GEOD", "WLD", "PAXG", "MELANIA", "AI16Z", "MERL", "SDEX", "MAJOR", "ALPACA", "HMSTR", "IQ", "NAKA", "PIXEL", "ARKM", "SKL", "BULL", "CREAM", "APE", "ACH", "WEMIX", "DATA", "ALEX", "STORJ", "QNT", "STC", "SYS", "RONIN", "NEO", "EIGEN", "LAT", "JOE", "MINA", "PORTAL", "DRIFT", "RIF", "ZIL", "AGG", "PERP", "AST", "SLP", "COPI", "OGN", "ORCA", "NKN", "KSM", "UFT", "CETUS", "BCUT", "ZETA", "SCR", "GAS", "VENOM", "HIGH", "PROM", "THETA", "SXP", "TLM", "COMP", "CELR", "GMMT", "ONE", "WAXP", "AMP", "LCX", "REQ", "FTT", "WAVES", "MASA", "RVN", "ZK", "DOT", "TKO", "IO", "DENT", "CFX", "MKR", "LUMIA", "EOS", "BANANA", "DODO", "PHIL", "MBOX", "OSMO", "CHR", "VANA", "TOKEN", "ROSE", "MEW", "CKB", "PYR", "XDC", "RLC", "CVC", "TWT", "BICO", "TUSD", "MAHA", "FTN", "SANTOS", "FUN", "XAUT", "BOBA", "FORT", "LPT", "MARSH", "ADX", "ONG", "TLOS", "IOST", "REN", "PDEX", "ORBS", "EURT", "ZBU", "SOLO", "QI", "CTC", "PRO", "VTHO", "XCN", "POWR", "TEL", "DAO", "AUDIO", "CSPR", "CTSI", "SIDUS", "CCD", "ADS", "XEM", "MASK", "NFP", "KAVA", "XDB", "CTK", "ELF", "MNT", "BLUR", "WOO", "ENS", "MAVIA", "OAS", "BB", "CELO", "ALPHA", "REZ", "ATOM", "RAY", "ORDI", "ANKR", "DIA", "XTZ", "GLM", "MOVR", "CORE", "DAI"} // Keep your full list
+var CoinWithINR = []string{"XAI", "SC", "PEIPEI", "GMT", "ZRO", "AVAX", "VINE", "1MBABYDOGE", "VVV", "OMNI", "ADA", "BENDOG", "POL", "FLOKI", "AZERO", "CAKE", "LRC", "FARTCOIN", "KAS", "DFI", "XCAD", "POPCAT", "AR", "CATS", "FLM", "HNT", "YFII", "INJ", "MIGGLES", "MYRIA", "ULTIMA", "CHZ", "POLYX", "WIF", "PEN", "TURBO", "SPX", "KAITO", "TOSHI", "METIS", "UMA", "STRAX", "FLT", "VINU", "DIONE", "MYRO", "AIXBT", "SUNDOG", "BSV", "BAN", "1000CHEEMS", "ACT", "MEME", "COOKIE", "AKT", "ALICE", "DEFI", "ALT", "ETC", "BERA", "BSW", "D", "AVAIL", "COW", "AXS", "SHIB", "ATH", "MANTA", "BRETT", "GRASS", "JASMY", "SOLV", "TST", "ALGO", "JUP", "BRISE", "PNUT", "CGPT", "ROOT", "HIPPO", "PONKE", "ONDO", "AERO", "TOMI", "AAVE", "DGB", "HBAR", "AIOZ", "TRB", "ICP", "FIL", "PHB", "LINK", "HYPE", "MOVE", "ARB", "VELODROME", "KNC", "MTL", "ACX", "DYM", "TFUEL", "ZEC", "SLERF", "FET", "CFG", "WAXL", "ELY", "ETHFI", "SILLY", "ILV", "EGLD", "LEVER", "LMWR", "ZIG", "STX", "SUSHI", "THE", "ENA", "LINA", "GOAT", "TNSR", "CSIX", "SAGA", "PDA", "PRCL", "LUNA", "RSR", "SYN", "NMR", "BDX", "PROS", "BCH", "NULS", "ZCX", "G", "S", "VRA", "VET", "LOOM", "ICE", "NIBI", "VSC", "SKY", "MBL", "FIDA", "TIA", "XVG", "CRV", "VELO", "WIN", "USUAL", "EWT", "SNX", "GRT", "USDC", "IMX", "OMG", "MOODENG", "SUN", "RENDER", "IOTX", "ARTFI", "WEN", "EMT", "TON", "XR", "LISTA", "X", "BONK", "BEAMX", "BIO", "COTI", "DMTR", "PUSH", "SUI", "BNB", "SPELL", "PYTH", "NEAR", "BIGTIME", "ME", "YFI", "NOT", "E4C", "MEMEFI", "CAT", "DEGEN", "PEPE", "VIRTUAL", "PHA", "XLM", "BAX", "BOME", "STRK", "BTTC", "TAO", "ZEREBRO", "GRIFFAIN", "W", "LAYER", "DOGS", "OM", "GOATS", "SEI", "VOLT", "SUPER", "PEOPLE", "NEIROETH", "GALA", "PENGU", "LDO", "TRUMP", "CHILLGUY", "XYO", "TRX", "ANIME", "APT", "DYDX", "HOT", "UNI", "GEOD", "WLD", "PAXG", "MELANIA", "AI16Z", "MERL", "SDEX", "MAJOR", "ALPACA", "HMSTR", "IQ", "NAKA", "PIXEL", "ARKM", "SKL", "BULL", "CREAM", "APE", "ACH", "WEMIX", "DATA", "ALEX", "STORJ", "QNT", "STC", "SYS", "RONIN", "NEO", "EIGEN", "LAT", "JOE", "MINA", "PORTAL", "DRIFT", "RIF", "ZIL", "AGG", "PERP", "AST", "SLP", "COPI", "OGN", "ORCA", "NKN", "KSM", "UFT", "CETUS", "BCUT", "ZETA", "SCR", "GAS", "VENOM", "HIGH", "PROM", "THETA", "SXP", "TLM", "COMP", "CELR", "GMMT", "ONE", "WAXP", "AMP", "LCX", "REQ", "FTT", "WAVES", "MASA", "RVN", "ZK", "DOT", "TKO", "IO", "DENT", "CFX", "MKR", "LUMIA", "EOS", "BANANA", "DODO", "PHIL", "MBOX", "OSMO", "CHR", "VANA", "TOKEN", "ROSE", "MEW", "CKB", "PYR", "XDC", "RLC", "CVC", "TWT", "BICO", "TUSD", "MAHA", "FTN", "SANTOS", "FUN", "XAUT", "BOBA", "FORT", "LPT", "MARSH", "ADX", "ONG", "TLOS", "IOST", "REN", "PDEX", "ORBS", "EURT", "ZBU", "SOLO", "QI", "CTC", "PRO", "VTHO", "XCN", "POWR", "TEL", "DAO", "AUDIO", "CSPR", "CTSI", "SIDUS", "CCD", "ADS", "XEM", "MASK", "NFP", "KAVA", "XDB", "CTK", "ELF", "MNT", "BLUR", "WOO", "ENS", "MAVIA", "OAS", "BB", "CELO", "ALPHA", "REZ", "ATOM", "RAY", "ORDI", "ANKR", "DIA", "XTZ", "GLM", "MOVR", "CORE", "DAI"} // Keep your full list
 
 type OrderBook struct {
 	Timestamp int64             `json:"timestamp"`
@@ -47,11 +47,11 @@ func main() {
 	
 	for true {
 		async_trade_history()
-		time.Sleep(1 * time.Minute)
-
+		time.Sleep(20 * time.Second)
+		fmt.Println(realCryptoShit)
 		get_profit()
-		time.Sleep(1 * time.Minute)
-
+		time.Sleep(20 * time.Second)
+		fmt.Println(coinWithProfit)
 		for coin, profit := range coinWithProfit {
 			fmt.Printf("%s: %f\n", coin, profit)
 			message := fmt.Sprintf("Coin Name:  %s \nTotal profit: %.2f \nLast Traded: %2.fs ago", coin, profit, realCryptoShit[coin])	
@@ -108,7 +108,7 @@ func processCoin(coin string) {
 
 	investment := 2000.0
 	profit := (investment/bestBid)*bestAsk - investment - 30
-	if profit > 60.0 {
+	if profit > 50.0 {
 		profitMutex.Lock()
 		coinWithProfit[coin] = profit
 		profitMutex.Unlock()
@@ -219,7 +219,7 @@ func processTradeHistory(coin string) {
 		diff = T1 - T2
 		recentDiff := (float64(timeNow)) - (times[0] / 1000)
 		// fmt.Println(diff, recentDiff)
-		if diff > 30 || recentDiff > 10.0 {
+		if diff > 30 || recentDiff > 30.0 {
 			condition = false
 			return
 		}

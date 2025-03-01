@@ -36,32 +36,61 @@ type TradeHistory struct {
 }
 
 var (
-	coinWithProfit = make(map[string]float64)
-	profitMutex    = &sync.Mutex{}
-	httpClient     = &http.Client{Timeout: 150 * time.Second}
-	realCryptoShit = make(map[string]float64)
+	coinWithProfit 		= make(map[string]float64)
+	profitMutex    		= &sync.Mutex{}
+	httpClient     		= &http.Client{Timeout: 150 * time.Second}
+	realCryptoShit      = make(map[string]float64)
 	realCryptoShitMutex = &sync.Mutex{}
+	seen 				  []string
+	loop_iteration 		= 0
 )
 
 func main() {
-	
+	ticker := time.NewTicker(5 * time.Minute)
+	defer ticker.Stop()
+
+	go func ()  {
+		for range ticker.C {
+			seen = []string{}
+			fmt.Println("Seen slice has been reset.")
+		}
+	}()
+
 	for true {
+
 		async_trade_history()
-		time.Sleep(30 * time.Second)
-		fmt.Println(realCryptoShit)
+		time.Sleep(40 * time.Second)
+		// fmt.Println(realCryptoShit)
 		get_profit()
-		time.Sleep(30 * time.Second)
-		fmt.Println(coinWithProfit)
+		time.Sleep(1 * time.Second)
+		// fmt.Println(coinWithProfit)
 		for coin, profit := range coinWithProfit {
-			fmt.Printf("%s: %f\n", coin, profit)
-			message := fmt.Sprintf("Coin Name:  %s \nTotal profit: %.2f \nLast Traded: %2.fs ago", coin, profit, realCryptoShit[coin] + 30.0)	
-			http.PostForm("https://api.pushover.net/1/messages.json", url.Values{
-				"token":   {"a7y4swewmxje1xd4e7mk29wy6r5ged"},
-				"user":    {"u964gnk8jyubzzoysrd8bnsorhd9nv"},
-				"message": {message},
-			})
+			if !seen_list(coin) {
+				seen = append(seen, coin)
+				message := fmt.Sprintf("Coin Name:  %s \nTotal profit: %.2f \nLast Traded: %2.fs ago", coin, profit, realCryptoShit[coin] + 30.0)	
+				fmt.Println(message)
+				http.PostForm("https://api.pushover.net/1/messages.json", url.Values{
+					"token":   {"a7y4swewmxje1xd4e7mk29wy6r5ged"},
+					"user":    {"u964gnk8jyubzzoysrd8bnsorhd9nv"},
+					"message": {message},
+				})
+			} 
+		}
+		for idx := range coinWithProfit {
+			delete(coinWithProfit, idx)
+		}
+		loop_iteration += 1
+		fmt.Println("Loop iteration: ", loop_iteration)
+	}
+}
+
+func seen_list(coin string) bool {
+	for _, s := range seen {
+		if s == coin {
+			return true
 		}
 	}
+	return false
 }
 
 func get_profit() {
@@ -164,7 +193,7 @@ func async_trade_history() {
 }
 
 func processTradeHistory(coin string) {
-	coinUrl := trade_url + coin + "_INR" + "&limit=5"
+	coinUrl := trade_url + coin + "_INR" + "&limit=20"
 
 	resp, err := httpClient.Get(coinUrl) 
 	if err != nil {
@@ -204,13 +233,13 @@ func processTradeHistory(coin string) {
 	sort.Sort(sort.Reverse(sort.Float64Slice(times)))
 
 	var (
-		condition = true
 		diff      float64
 		timeNow   int64
 		j         = 1
 	)
+	// var highTimeDiff []float64
 	timeNow = time.Now().UnixMilli() / 1000
-	for idx := range 4 {
+	for idx := range 19 {
 		if j >= len(times) { 
 			break 
 		}
@@ -219,25 +248,27 @@ func processTradeHistory(coin string) {
 		diff = T1 - T2
 		recentDiff := (float64(timeNow)) - (times[0] / 1000)
 		// fmt.Println(diff, recentDiff)
+		// fmt.Printf("Diff: %.2f Recent Diff: %.2f \n", diff, recentDiff)
 		if diff > 30 || recentDiff > 30.0 {
-			condition = false
+			// highTimeDiff = append(highTimeDiff, diff)
 			return
 		}
+		j += 1
+		// fmt.Println(highTimeDiff)
 	}
 	// fmt.Println(coin, condition)
-	if condition == true {
-		for _, trade := range tradehistory {
-			T1 := (float64(timeNow) * 1000) / 1000
-			T2 := times[0] / 1000
-			// formatted_T1 := strconv.FormatFloat(T1, 'f', 6, 64)
-			// formatted_T2 := strconv.FormatFloat(T2, 'f', 6, 64)
-			// parsed_T1, _ := strconv.ParseFloat(formatted_T1, 64)
-			// parsed_T2, _ := strconv.ParseFloat(formatted_T2, 64)
-			realCryptoShitMutex.Lock()
-			removedINRpart := strings.TrimSuffix(trade.S, "INR")
-			realCryptoShit[removedINRpart] = T1 - T2
-			realCryptoShitMutex.Unlock()
-			break
-		}
+	for _, trade := range tradehistory {
+		T1 := (float64(timeNow) * 1000) / 1000
+		T2 := times[0] / 1000
+		// formatted_T1 := strconv.FormatFloat(T1, 'f', 6, 64)
+		// formatted_T2 := strconv.FormatFloat(T2, 'f', 6, 64)
+		// parsed_T1, _ := strconv.ParseFloat(formatted_T1, 64)
+		// parsed_T2, _ := strconv.ParseFloat(formatted_T2, 64)
+		realCryptoShitMutex.Lock()
+		removedINRpart := strings.TrimSuffix(trade.S, "INR")
+		realCryptoShit[removedINRpart] = T1 - T2
+		realCryptoShitMutex.Unlock()
+		break
 	}
+	
 }

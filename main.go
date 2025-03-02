@@ -59,10 +59,10 @@ func main() {
 	for true {
 
 		async_trade_history()
-		time.Sleep(40 * time.Second)
+		time.Sleep(30 * time.Second)
 		// fmt.Println(realCryptoShit)
 		get_profit()
-		time.Sleep(1 * time.Second)
+		time.Sleep(30 * time.Second)
 		// fmt.Println(coinWithProfit)
 		for coin, profit := range coinWithProfit {
 			if !seen_list(coin) {

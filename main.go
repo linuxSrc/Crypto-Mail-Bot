@@ -76,9 +76,15 @@ func main() {
 				})
 			} 
 		}
+		
 		for idx := range coinWithProfit {
 			delete(coinWithProfit, idx)
 		}
+		
+		for i := range realCryptoShit {
+			delete(realCryptoShit, i)
+		}
+		
 		loop_iteration += 1
 		fmt.Println("Loop iteration: ", loop_iteration)
 	}

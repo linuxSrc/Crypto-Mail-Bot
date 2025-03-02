@@ -59,10 +59,10 @@ func main() {
 	for true {
 
 		async_trade_history()
-		time.Sleep(30 * time.Second)
+		time.Sleep(20 * time.Second)
 		// fmt.Println(realCryptoShit)
 		get_profit()
-		time.Sleep(30 * time.Second)
+		time.Sleep(20 * time.Second)
 		// fmt.Println(coinWithProfit)
 		for coin, profit := range coinWithProfit {
 			if !seen_list(coin) {
@@ -255,7 +255,7 @@ func processTradeHistory(coin string) {
 		recentDiff := (float64(timeNow)) - (times[0] / 1000)
 		// fmt.Println(diff, recentDiff)
 		// fmt.Printf("Diff: %.2f Recent Diff: %.2f \n", diff, recentDiff)
-		if diff > 30 || recentDiff > 30.0 {
+		if diff > 100 || recentDiff > 60.0 {
 			// highTimeDiff = append(highTimeDiff, diff)
 			return
 		}

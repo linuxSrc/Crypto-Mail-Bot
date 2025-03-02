@@ -59,16 +59,20 @@ func main() {
 	for true {
 
 		async_trade_history()
+
 		time.Sleep(20 * time.Second)
-		// fmt.Println(realCryptoShit)
+
+		fmt.Println("realCryptoShit: ", realCryptoShit)
+
 		get_profit()
+
 		time.Sleep(20 * time.Second)
-		// fmt.Println(coinWithProfit)
+		fmt.Println("coinWithProfit: ", coinWithProfit)
 		for coin, profit := range coinWithProfit {
 			if !seen_list(coin) {
 				seen = append(seen, coin)
 				message := fmt.Sprintf("Coin Name:  %s \nTotal profit: %.2f \nLast Traded: %2.fs ago", coin, profit, realCryptoShit[coin] + 30.0)	
-				fmt.Println(message)
+				// fmt.Println(message)
 				http.PostForm("https://api.pushover.net/1/messages.json", url.Values{
 					"token":   {"a7y4swewmxje1xd4e7mk29wy6r5ged"},
 					"user":    {"u964gnk8jyubzzoysrd8bnsorhd9nv"},
@@ -76,15 +80,20 @@ func main() {
 				})
 			} 
 		}
+
 		
 		for idx := range coinWithProfit {
 			delete(coinWithProfit, idx)
 		}
+
+		fmt.Println("coinWithProfit after deleting elements: ", coinWithProfit)		
 		
 		for i := range realCryptoShit {
 			delete(realCryptoShit, i)
 		}
 		
+		fmt.Println("realCryptoShit after deleting elements: ", realCryptoShit)
+
 		loop_iteration += 1
 		fmt.Println("Loop iteration: ", loop_iteration)
 	}
@@ -199,7 +208,7 @@ func async_trade_history() {
 }
 
 func processTradeHistory(coin string) {
-	coinUrl := trade_url + coin + "_INR" + "&limit=10"
+	coinUrl := trade_url + coin + "_INR" + "&limit=5"
 
 	resp, err := httpClient.Get(coinUrl) 
 	if err != nil {
@@ -245,7 +254,7 @@ func processTradeHistory(coin string) {
 	)
 	// var highTimeDiff []float64
 	timeNow = time.Now().UnixMilli() / 1000
-	for idx := range 9 {
+	for idx := range 4 {
 		if j >= len(times) { 
 			break 
 		}

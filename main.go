@@ -143,7 +143,7 @@ func processCoin(coin string) {
 
 	investment := 2000.0
 	profit := (investment/bestBid)*bestAsk - investment - 30
-	if profit > 50.0 {
+	if profit > 60.0 {
 		profitMutex.Lock()
 		coinWithProfit[coin] = profit
 		profitMutex.Unlock()
@@ -199,7 +199,7 @@ func async_trade_history() {
 }
 
 func processTradeHistory(coin string) {
-	coinUrl := trade_url + coin + "_INR" + "&limit=20"
+	coinUrl := trade_url + coin + "_INR" + "&limit=10"
 
 	resp, err := httpClient.Get(coinUrl) 
 	if err != nil {
@@ -245,7 +245,7 @@ func processTradeHistory(coin string) {
 	)
 	// var highTimeDiff []float64
 	timeNow = time.Now().UnixMilli() / 1000
-	for idx := range 19 {
+	for idx := range 9 {
 		if j >= len(times) { 
 			break 
 		}

@@ -66,7 +66,7 @@ func main() {
 		for coin, profit := range coinWithProfit {
 			if !seen_list(coin) {
 				seen = append(seen, coin)
-				message := fmt.Sprintf("Coin Name:  %s \nTotal profit: %.2f \nLast Traded: %2.fs ago", coin, profit, realCryptoShit[coin] + 30.0)	
+				message := fmt.Sprintf("Coin Name:  %s \nTotal profit: %.2f \nLast Traded: %2.fs ago", coin, profit, realCryptoShit[coin] + 20.0)	
 				fmt.Println(message)
 				http.PostForm("https://api.pushover.net/1/messages.json", url.Values{
 					"token":   {"a7y4swewmxje1xd4e7mk29wy6r5ged"},
@@ -143,7 +143,7 @@ func processCoin(coin string) {
 
 	investment := 2000.0
 	profit := (investment/bestBid)*bestAsk - investment - 30
-	if profit > 60.0 {
+	if profit > 100.0 {
 		profitMutex.Lock()
 		coinWithProfit[coin] = profit
 		profitMutex.Unlock()
@@ -199,7 +199,7 @@ func async_trade_history() {
 }
 
 func processTradeHistory(coin string) {
-	coinUrl := trade_url + coin + "_INR" + "&limit=10"
+	coinUrl := trade_url + coin + "_INR" + "&limit=20"
 
 	resp, err := httpClient.Get(coinUrl) 
 	if err != nil {
@@ -255,7 +255,7 @@ func processTradeHistory(coin string) {
 		recentDiff := (float64(timeNow)) - (times[0] / 1000)
 		// fmt.Println(diff, recentDiff)
 		// fmt.Printf("Diff: %.2f Recent Diff: %.2f \n", diff, recentDiff)
-		if diff > 120 || recentDiff > 60.0 {
+		if diff > 300 || recentDiff > 300.0 {
 			// highTimeDiff = append(highTimeDiff, diff)
 			return
 		}

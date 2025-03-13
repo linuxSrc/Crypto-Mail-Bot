@@ -36,20 +36,20 @@ type TradeHistory struct {
 }
 
 var (
-	coinWithProfit 		= make(map[string]float64)
-	profitMutex    		= &sync.Mutex{}
-	httpClient     		= &http.Client{Timeout: 150 * time.Second}
+	coinWithProfit      = make(map[string]float64)
+	profitMutex         = &sync.Mutex{}
+	httpClient          = &http.Client{Timeout: 150 * time.Second}
 	realCryptoShit      = make(map[string]float64)
 	realCryptoShitMutex = &sync.Mutex{}
-	seen 				  []string
-	loop_iteration 		= 0
+	seen                []string
+	loop_iteration      = 0
 )
 
 func main() {
-	ticker := time.NewTicker(5 * time.Minute)
+	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
-	go func ()  {
+	go func() {
 		for range ticker.C {
 			seen = []string{}
 			fmt.Println("Seen slice has been reset.")
@@ -66,25 +66,24 @@ func main() {
 		for coin, profit := range coinWithProfit {
 			if !seen_list(coin) {
 				seen = append(seen, coin)
-				message := fmt.Sprintf("Coin Name:  %s \nTotal profit: %.2f \nLast Traded: %2.fs ago", coin, profit, realCryptoShit[coin] + 20.0)	
+				message := fmt.Sprintf("Coin Name:  %s \nTotal profit: %.2f \nLast Traded: %2.fs ago", coin, profit, realCryptoShit[coin]+20.0)
 				fmt.Println(message)
 				http.PostForm("https://api.pushover.net/1/messages.json", url.Values{
 					"token":   {"a7y4swewmxje1xd4e7mk29wy6r5ged"},
 					"user":    {"u964gnk8jyubzzoysrd8bnsorhd9nv"},
 					"message": {message},
 				})
-			} 
+			}
 		}
 
-		
 		for idx := range coinWithProfit {
 			delete(coinWithProfit, idx)
 		}
-		
+
 		for i := range realCryptoShit {
 			delete(realCryptoShit, i)
 		}
-		
+
 		loop_iteration += 1
 		fmt.Println("Loop iteration: ", loop_iteration)
 	}
@@ -117,7 +116,7 @@ func get_profit() {
 func processCoin(coin string) {
 	coinURL := base_url + "B-" + coin + "_INR"
 
-	resp, err := httpClient.Get(coinURL) 
+	resp, err := httpClient.Get(coinURL)
 	if err != nil {
 		fmt.Printf("Error fetching %s: %v\n", coin, err)
 		return
@@ -187,7 +186,6 @@ func async_trade_history() {
 
 	for _, coin := range CoinWithINR {
 		wg.Add(1)
-
 		go func(c string) {
 			defer func() {
 				wg.Done()
@@ -201,7 +199,7 @@ func async_trade_history() {
 func processTradeHistory(coin string) {
 	coinUrl := trade_url + coin + "_INR" + "&limit=10"
 
-	resp, err := httpClient.Get(coinUrl) 
+	resp, err := httpClient.Get(coinUrl)
 	if err != nil {
 		fmt.Printf("Error fetching trade history for %s: %v\n", coin, err)
 		return
@@ -239,15 +237,15 @@ func processTradeHistory(coin string) {
 	sort.Sort(sort.Reverse(sort.Float64Slice(times)))
 
 	var (
-		diff      float64
-		timeNow   int64
-		j         = 1
+		diff    float64
+		timeNow int64
+		j       = 1
 	)
 	// var highTimeDiff []float64
 	timeNow = time.Now().UnixMilli() / 1000
 	for idx := range 19 {
-		if j >= len(times) { 
-			break 
+		if j >= len(times) {
+			break
 		}
 		T1 := times[idx] / 1000
 		T2 := times[j] / 1000
@@ -276,5 +274,5 @@ func processTradeHistory(coin string) {
 		realCryptoShitMutex.Unlock()
 		break
 	}
-	
+
 }
